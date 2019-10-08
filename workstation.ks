@@ -42,10 +42,7 @@ xconfig --startxonboot
 timezone Australia/Sydney
 
 # Create User Account
-user --name=sina --password=$userpass --iscrypted --groups=wheel
-
-# Set Root Password
-rootpw --lock
+user --name=sina --password=password --plaintext --groups=wheel
 
 # Perform Installation in Text Mode
 text
