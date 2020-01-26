@@ -17,32 +17,33 @@ bootloader --location=mbr --driveorder=sda
 
 # Create Physical Partition
 part /boot --size=512 --asprimary --ondrive=sda --fstype=xfs
-part swap --size=2048 --ondrive=sda 
-part / --size=8192 --grow --asprimary --ondrive=sda --fstype=xfs 
+part swap --size=10240 --ondrive=sda
+part / --size=8192 --grow --asprimary --ondrive=sda --fstype=xfs
 
 # Remove all existing partitions
-clearpart --all --drives=sda
+clearpart --all --initlabel --drives=sda
 
 # Configure Firewall
 firewall --enabled --ssh
 
 # Configure Network Interfaces
-network --onboot=yes --bootproto=dhcp --hostname=sina-laptop
+network --onboot=yes --bootproto=dhcp --hostname=user
 
 # Configure Keyboard Layouts
-keyboard us
+keyboard ru
 
 # Configure Language During Installation
-lang en_AU
+lang en_US
 
 # Configure X Window System
 xconfig --startxonboot
 
 # Configure Time Zone
-timezone Australia/Sydney
+timezone Europe/Saratov
 
 # Create User Account
-user --name=sina --password=sina --groups=wheel
+user --name=max --plaintext --password=maxmax --groups=wheel
+
 
 # Set Root Password
 rootpw --lock
@@ -52,116 +53,29 @@ text
 
 # Package Selection
 %packages
-@core
-@standard
-@hardware-support
-@base-x
-@firefox
-@fonts
 
-
-@networkmanager-submodules
-
-@xfce-desktop
-
+chromium
+java-latest-openjdk
+@Python Classroom
+firefox
+@LibreOffice
+@gnome-desktop
+git
 vim
-NetworkManager-openvpn-gnome
-keepassx
-redshift-gtk
-
-
-nmap
-tcpdump
 ansible
-
-vlc
-
-
-
-redhat-rpm-config
-rpmconf
-strace
-wireshark
-ffmpeg
-system-config-printer
-git-review
-gcc-c++
-readline-devel
-
-
-python3-virtualenvwrapper
-
-
-usbmuxd
-ifuse
-
-
-
-exfat-utils
-fuse-exfat
-jq
-
-icedtea-web
 docker
+
 %end
 
 # Post-installation Script
 %post
-# Install Google Chrome
-cat << EOF > /etc/yum.repos.d/google-chrome.repo
-[google-chrome]
-name=google-chrome
-baseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64
-enabled=1
-gpgcheck=1
-gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
-EOF
-rpm --import https://dl-ssl.google.com/linux/linux_signing_key.pub
-dnf install -y google-chrome-stable
-
-# Harden sshd options
-echo "" > /etc/ssh/sshd_config
-
-#vimrc configuration
-echo "filetype plugin indent on
-set tabstop=4
-set shiftwidth=4
-set expandtab
-set nohlsearch" > /home/sina/.vimrc
-
-cat <<EOF > /home/sina/.bashrc
-if [ -f /etc/bashrc ]; then
-  . /etc/bashrc
-fi
-source /usr/bin/virtualenvwrapper.sh
-export GOPATH=/home/sina/Development/go
-export PATH=$PATH:/home/sina/Development/go/bin
-alias irssi='firejail irssi'
-EOF
-
-# Disable IPv6
-cat <<EOF >> /etc/sysctl.conf
-net.ipv6.conf.all.disable_ipv6 = 1
-net.ipv6.conf.default.disable_ipv6 = 1
-net.ipv6.conf.lo.disable_ipv6 = 1
-EOF
-
-# Enable services
-systemctl enable usbmuxd
-
-# Disable services
-systemctl disable sssd
-systemctl disable bluetooth.target
-systemctl disable avahi-daemon
-systemctl disable abrtd
-systemctl disable abrt-ccpp
-systemctl disable mlocate-updatedb
-systemctl disable mlocate-updatedb.timer
-systemctl disable gssproxy
-systemctl disable bluetooth
-systemctl disable geoclue
-systemctl disable ModemManager
-sed -i 's/Disabled=false/Disabled=true/g' /etc/xdg/tumbler/tumbler.rc
+sudo systemctl start docker
+sudo systemctl enable docker
+curl -o /usr/bin/containers.sh https://raw.githubusercontent.com/bibichevat/kickstart-fedora-workstation/master/containers.sh
+chmod +x /usr/bin/containers.sh
+curl -o /etc/systemd/system/containers.service https://raw.githubusercontent.com/bibichevat/kickstart-fedora-workstation/master/containers.service
+chmod 644 /etc/systemd/system/containers.service
+systemctl enable containers.service
 %end
 
 # Reboot After Installation
