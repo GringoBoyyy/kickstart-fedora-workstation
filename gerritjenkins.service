@@ -5,7 +5,7 @@ After=docker.service
 
 [Service]
 Type=simple
-ExecStart=/bin/bash /usr/bin/gerrit_jenkins_start.sh
+ExecStart=/bin/bash /usr/bin/gerrit_jenkins.sh
 
 [Install]
 WantedBy=multi-user.target
