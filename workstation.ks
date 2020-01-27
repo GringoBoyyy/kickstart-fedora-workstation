@@ -17,33 +17,32 @@ bootloader --location=mbr --driveorder=sda
 
 # Create Physical Partition
 part /boot --size=512 --asprimary --ondrive=sda --fstype=xfs
-part swap --size=2048 --ondrive=sda
-part / --size=8192 --grow --asprimary --ondrive=sda --fstype=xfs
+part swap --size=2048 --ondrive=sda 
+part / --size=8192 --grow --asprimary --ondrive=sda --fstype=xfs 
 
 # Remove all existing partitions
-clearpart --all --initlabel --drives=sda
+clearpart --all --drives=sda
 
 # Configure Firewall
 firewall --enabled --ssh
 
 # Configure Network Interfaces
-network --onboot=yes --bootproto=dhcp --hostname=user
+network --onboot=yes --bootproto=dhcp --hostname=sina-laptop
 
 # Configure Keyboard Layouts
-keyboard ru
+keyboard us
 
 # Configure Language During Installation
-lang en_US
+lang en_AU
 
 # Configure X Window System
 xconfig --startxonboot
 
 # Configure Time Zone
-timezone Europe/Saratov
+timezone Australia/Sydney
 
 # Create User Account
-user --name=max --plaintext --password=maxmax --groups=wheel
-
+user --name=user --password=12345 --groups=wheel
 
 # Set Root Password
 rootpw --lock
@@ -53,29 +52,41 @@ text
 
 # Package Selection
 %packages
-
-chromium
-java-latest-openjdk
-@Python Classroom
-firefox
-@LibreOffice
-@gnome-desktop
-git
+@core
+@standard
+@hardware-support
+@base-x
+@fonts
+@networkmanager-submodules
+@xfce-desktop
 vim
+NetworkManager-openvpn-gnome
+redshift-gtk
+nmap
+tcpdump
 ansible
+redhat-rpm-config
+rpmconf
+strace
+git-review
+gcc-c++
+readline-devel
+python3-virtualenvwrapper
+usbmuxd
+ifuse
+jq
+icedtea-web
 docker
-
 %end
 
-# Post-installation Script
-%post
+# Docker
 sudo systemctl start docker
 sudo systemctl enable docker
-curl -o /usr/bin/containers.sh https://raw.githubusercontent.com/GringoBoyyy/kickstart-fedora-workstation/master/containers.sh
-chmod +x /usr/bin/containers.sh
-curl -o /etc/systemd/system/containers.service https://raw.githubusercontent.com/GringoBoyyy/kickstart-fedora-workstation/master/containers.service
-chmod 644 /etc/systemd/system/containers.service
-systemctl enable containers.service
+sudo curl -o /usr/bin/containers.sh https://raw.githubusercontent.com/GringoBoyyy/kickstart/master/containers.sh
+sudo chmod +x /usr/bin/containers.sh
+sudo curl -o /etc/systemd/system/containers.service https://raw.githubusercontent.com/GringoBoyyy/kickstart/master/containers.service
+sudo chmod 644 /etc/systemd/system/containers.service
+sudo systemctl enable containers.service
 %end
 
 # Reboot After Installation
