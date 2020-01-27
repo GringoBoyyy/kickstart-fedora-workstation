@@ -100,11 +100,11 @@ systemctl enable docker.service
 systemctl start docker.service
 
 # Install Jenkins and Gerrit Code Review
-curl -o /usr/bin/gerrit_jenkins_start.sh https://raw.githubusercontent.com/GringoBoyyy/fedora/master/gerrit_jenkins_start.sh
-chmod +x /usr/bin/gerrit_jenkins_start.sh
-curl -o /etc/systemd/system/gerritjenkinsrun.service https://raw.githubusercontent.com/GringoBoyyy/fedora/master/gerritjenkinsrun.service
-chmod 644 /etc/systemd/system/gerritjenkinsrun.service
-systemctl enable gerritjenkinsrun.service
+curl -o /usr/bin/gerrit_jenkins.sh https://raw.githubusercontent.com/GringoBoyyy/fedora/master/gerrit_jenkins.sh
+chmod +x /usr/bin/gerrit_jenkins.sh
+curl -o /etc/systemd/system/gerritjenkins.service https://raw.githubusercontent.com/GringoBoyyy/fedora/master/gerritjenkins.service
+chmod 644 /etc/systemd/system/gerritjenkins.service
+systemctl enable gerritjenkins.service
 
 # Harden sshd options
 echo "" > /etc/ssh/sshd_config
