@@ -17,8 +17,8 @@ bootloader --location=mbr --driveorder=sda
 
 # Create Physical Partition
 part /boot --size=512 --asprimary --ondrive=sda --fstype=xfs
-part swap --size=2048 --ondrive=sda 
-part / --size=8192 --grow --asprimary --ondrive=sda --fstype=xfs 
+part swap --size=10240 --ondrive=sda
+part / --size=8192 --grow --asprimary --ondrive=sda --fstype=xfs
 
 # Remove all existing partitions
 clearpart --all --drives=sda
@@ -27,25 +27,25 @@ clearpart --all --drives=sda
 firewall --enabled --ssh
 
 # Configure Network Interfaces
-network --onboot=yes --bootproto=dhcp --hostname=sina-laptop
+network --onboot=yes --bootproto=dhcp
 
 # Configure Keyboard Layouts
 keyboard us
 
 # Configure Language During Installation
-lang en_AU
+lang en_US
 
 # Configure X Window System
 xconfig --startxonboot
 
 # Configure Time Zone
-timezone Australia/Sydney
+timezone Etc/GMT-4
 
 # Create User Account
-user --name=sina --password=qwerty --groups=wheel
+user --name=max --password=$qwerty --groups=wheel
 
 # Set Root Password
-rootpw --lock
+rootpw $fedora
 
 # Perform Installation in Text Mode
 text
@@ -55,50 +55,56 @@ text
 @core
 @standard
 @hardware-support
-@base-x
+@firefox
 @fonts
+@libreoffice
+@multimedia
 @networkmanager-submodules
-@xfce-desktop
+@development-tools
+@Python Classroom
+@gnome-desktop
+chromium
+java-openjdk
 vim
+git
 NetworkManager-openvpn-gnome
-# keepassx
-redshift-gtk
-nmap
-tcpdump
+keepassx
+gimp
+calibre
 ansible
-# vlc
+vlc
+gstreamer-plugins-ugly
+gstreamer1-plugins-ugly
 redhat-rpm-config
 rpmconf
 strace
-# wireshark
-# ffmpeg
-# system-config-printer
-git-review
-gcc-c++
 readline-devel
-python3-virtualenvwrapper
+libcurl-devel
 usbmuxd
-ifuse
-# exfat-utils
-# fuse-exfat
-jq
+transmission-gtk
+evince
+exfat-utils
+fuse-exfat
 icedtea-web
-docker
+ristretto
 %end
 
 # Post-installation Script
 %post
-# Install Google Chrome
-# cat << EOF > /etc/yum.repos.d/google-chrome.repo
-# [google-chrome]
-# name=google-chrome
-# baseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64
-# enabled=1
-# gpgcheck=1
-# gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
-# EOF
-# rpm --import https://dl-ssl.google.com/linux/linux_signing_key.pub
-# dnf install -y google-chrome-stable
+
+# Install Docker
+dnf -y install dnf-plugins-core
+dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+dnf -y install docker-ce docker-ce-cli containerd.io
+systemctl enable docker.service
+systemctl start docker.service
+
+# Install Jenkins and Gerrit Code Review
+curl -o /usr/bin/gerrit_jenkins_start.sh https://raw.githubusercontent.com/GringoBoyyy/fedora/master/gerrit_jenkins_start.sh
+chmod +x /usr/bin/gerrit_jenkins_start.sh
+curl -o /etc/systemd/system/gerritjenkinsrun.service https://raw.githubusercontent.com/GringoBoyyy/fedora/master/gerritjenkinsrun.service
+chmod 644 /etc/systemd/system/gerritjenkinsrun.service
+systemctl enable gerritjenkinsrun.service
 
 # Harden sshd options
 echo "" > /etc/ssh/sshd_config
@@ -109,16 +115,6 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 set nohlsearch" > /home/sina/.vimrc
-
-cat <<EOF > /home/sina/.bashrc
-if [ -f /etc/bashrc ]; then
-  . /etc/bashrc
-fi
-source /usr/bin/virtualenvwrapper.sh
-export GOPATH=/home/sina/Development/go
-export PATH=$PATH:/home/sina/Development/go/bin
-alias irssi='firejail irssi'
-EOF
 
 # Disable IPv6
 cat <<EOF >> /etc/sysctl.conf
@@ -143,17 +139,4 @@ systemctl disable bluetooth
 systemctl disable geoclue
 systemctl disable ModemManager
 sed -i 's/Disabled=false/Disabled=true/g' /etc/xdg/tumbler/tumbler.rc
-
-#docker
-sudo systemctl start docker
-sudo systemctl enable docker
-sudo curl -o /usr/bin/containers.sh https://raw.githubusercontent.com/GringoBoyyy/kickstart/master/containers.sh
-sudo chmod +x /usr/bin/containers.sh
-sudo curl -o /etc/systemd/system/containers.service https://raw.githubusercontent.com/GringoBoyyy/kickstart/master/containers.service
-sudo chmod 644 /etc/systemd/system/containers.service
-sudo systemctl enable containers.service
 %end
-
-# Reboot After Installation
-reboot --eject
-
